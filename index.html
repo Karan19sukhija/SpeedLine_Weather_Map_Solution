@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Application</title>
+    <link rel = "stylesheet" href ="style.css" type = "text/css">
+</head>
+<body>
+
+<div class = "container">
+
+    <div class = "field">
+
+    <form action ="include.php" method = "POST">
+       <input type ="text" name ="city">
+       <button type ="submit" name = "getweather">GET WEATHER</button>
+    </form>
+
+    </div>
+
+    <div id ="map"></div>
+
+</div>
+
+<script>
+
+   
+   function initMap(){
+
+     var markers = [];
+     var options = {
+      center: {lat: 53.7267, lng: -127.6476},
+      zoom: 4
+
+     }
+   var map = new google.maps.Map(document.getElementById("map"), options);
+
+   // Fetching the database value by AJAX CALL
+
+   var xmlhttp = new XMLHttpRequest();
+   xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        
+        //converting JSON back to array
+        var data = JSON.parse(this.responseText);
+      
+    
+        for(var i=0;i<data.length;i++){
+
+          var a = parseFloat(data[i].lat);
+          var b = parseFloat(data[i].lon);
+          var c = data[i].name;
+          var d = data[i].temp;
+          var e = c.concat(" ", d);
+          var f = data[i].descr;
+          var g = c.concat(" ", d, " ", f);
+            
+
+          var obj ={
+
+            coords: {lat: a, lng: b},
+            content: g
+          }
+          
+           markers.push(obj);
+        }
+      }
+    };
+          xmlhttp.open("GET","data.php",false);
+          xmlhttp.send();
+
+            // Loop through markers
+
+            for(var i=0; i<markers.length;i++){
+              // console.log(markers[i].coords);
+              addMarker(markers[i]);
+            }
+
+
+            // Add Marker functions
+
+            function addMarker(props){
+
+            // console.log(props.coords);
+
+              marker = new google.maps.Marker({
+              position: props.coords,
+              map: map
+
+            });
+
+            //check content
+
+            if(props.content){
+              var infoWindow = new google.maps.InfoWindow({
+                content: props.content
+              });
+              marker.addListener('click', function() {
+                        infoWindow.open(map, marker);
+                      });
+            }
+
+           }
+           
+   }   // end of function initMap()
+
+</script>
+
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ0z-GSbvC17QXO4A0SIZoZIgM5MtxAwA&callback=initMap">
+</script>
+    
+
+<script>
+
+  /*--------     THIS PART IS FOR FUTURE PURPOSE  -  TO DO  ----------------------*/
+
+
+
+  // Change this depending on the name of your PHP or XML file
+  
+  /*
+downloadUrl('./marker.php', function(data) {
+       
+        
+        var xml = data.responseXML;
+        var cities = xml.documentElement.getElementsByTagName('marker');
+        Array.prototype.forEach.call(cities, function(markerElem) {
+          var id = markerElem.getAttribute('id');
+          var name = markerElem.getAttribute('name');
+          var temp = markerElem.getAttribute('temp');   
+          var descr = markerElem.getAttribute('descr');
+          var point = new google.maps.LatLng(
+              parseFloat(markerElem.getAttribute('lat')),
+              parseFloat(markerElem.getAttribute('lon')));
+
+          var infowincontent = document.createElement('div');
+          var strong = document.createElement('strong');
+          strong.textContent = name
+          infowincontent.appendChild(strong);
+          infowincontent.appendChild(document.createElement('br'));
+
+          var text = document.createElement('text');
+          text.textContent = temp
+          infowincontent.appendChild(text);
+          var icon = customLabel[descr] || {};
+          var marker = new google.maps.Marker({
+            map: map,
+            position: point,
+            label: icon.label
+          });
+          marker.addListener('click', function() {
+            infoWindow.setContent(infowincontent);
+            infoWindow.open(map, marker);
+          });
+        });
+      });
+
+      */
+      
+    
+
+ /*
+  function downloadUrl(url, callback) {
+    var request = window.ActiveXObject ?
+        new ActiveXObject('Microsoft.XMLHTTP') :
+        new XMLHttpRequest;
+
+    request.onreadystatechange = function() {
+      if (request.readyState == 4) {
+        request.onreadystatechange = doNothing;
+        callback(request, request.status);
+      }
+    };
+
+    request.open('GET', url, true); 
+    request.send(null);
+  }
+
+
+
+  function doNothing(){}
+
+*/
+</script>
+
+</body>
+
+</html>
